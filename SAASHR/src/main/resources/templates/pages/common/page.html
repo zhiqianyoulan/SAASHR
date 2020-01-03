@@ -1,0 +1,79 @@
+<ul class="pagination pagination-sm no-margin pull-right">
+    <li><a class="first">首页</a></li>
+	<li><a class="pre">上一页</a></li>
+	<li><a class="next">下一页</a></li>
+	<li><a class="last">尾页</a></li>
+	<li><a class="rowCount">总记录数(0)</a></li>
+	<li><a class="pageCount">总页数(0)</a></li>
+	<li><a class="pageCurrent">当前页(1)</a></li>
+</ul>
+<script type="text/javascript">
+//在pageId对象上注册点击事件，当点击pageId对象内部的frist，pre等元素时，执行doJumpToPage函数
+$(function(){
+	$("#pageId")
+	.on("click",".first,.pre,.next,.last",doJumpToPage);
+})
+//跳转到指定页面
+function doJumpToPage(){
+  //	一、获取点击对象的class属性值
+  //1)$(this)表示当前被点击的对象
+  //2)prop函数语法为jquery中获取对象属性值的一个函数
+  //prop(属性名,[属性值])用户获取属性值或为属性赋值
+  var cls=$(this).prop("class");
+  //	二、基于class属性值,修改当前页码值
+  //1)pageCurrent=1;
+  //2)pageCurrent--;
+  //3)pageCurrent++;
+  //4)pageCurrent=pageCount;
+  //2.1获取pageCurrent(当前页码值),pageCount(总页数)
+  var pageCurrent=$("#pageId").data("pageCurrent");
+  var pageCount=$("#pageId").data("pageCount");
+  //2.2修改pageCurrent值
+  if(cls=="first"){
+	  pageCurrent=1;
+  }else if(cls=="pre"&&pageCurrent>1){
+	  pageCurrent--;
+  }else if(cls=="next"&&pageCurrent<pageCount){
+	  pageCurrent++;
+  }else if(cls=="last"){
+	  pageCurrent=pageCount;
+  }else{
+	  return;
+  }
+  //	三、基于新的页码值重新执行查询操作
+  $("#pageId").data("pageCurrent",pageCurrent);
+  doGetObjects();
+}
+
+//初始化分页信息
+function doInitPagination(){
+	$(".rowCount").html("总记录数(0)")
+	$(".pageCount").html("总页数(0)")
+	$(".pageCurrent").html("当前页(1)")
+}
+
+//设置分页信息
+function doSetPagination(pageObject){
+	//debugger;
+	//1.初始化总记录数
+	$(".rowCount").html("总记录数("+pageObject.rowCount+")")//.rowCount类选择器
+	//2.初始化总页数
+	$(".pageCount").html("总页数("+pageObject.pageCount+")")
+	//3.初始化当前页码值
+	$(".pageCurrent").html("当前页("+pageObject.pageCurrent+")")
+	
+	//	四、存储当前页码以及总页数的值
+	//data(key,[value])函数用于在某个对下个上绑定值或获取值
+	//data函数是jquery中的数据绑定函数
+	$("#pageId").data("pageCurrent",pageObject.pageCurrent);
+	$("#pageId").data("pageCount",pageObject.pageCount);
+}
+
+
+</script>
+
+
+
+
+
+

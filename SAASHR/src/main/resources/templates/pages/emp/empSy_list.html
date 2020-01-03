@@ -1,0 +1,148 @@
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">试用期员工</h3>
+
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body table-responsive no-padding">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th>姓名</th>
+							<th>部门</th>
+							<th>入职时间</th>
+							<th>身份证号</th>
+							<th>手机号码</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="tbodyId"></tbody>
+				</table>
+			</div>
+			<div id="pageId" class="box-footer clearfix">
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+</div>
+<script type="text/javascript">
+
+$(function(){
+	const pageUrl="doPageUI";
+	$("#pageId").load(pageUrl,doGetObjects)
+	$("#tbodyId").on("click",".btn-update",doUpdate)
+});
+
+//点击更新按钮
+function doUpdate(){
+	   //1.params
+	   var employeeId=$(this).parents("tr").data("employeeId");
+	   var params={"employeeId":employeeId};
+	   //2.url
+	   var url="empSy/updateEmpSy"
+	   //3.ajax request
+	   $.post(url,params,function(result){
+		
+		   if(result.state==1){
+			   alert(result.message);
+			   doGetObjects();
+
+		   }else{
+			   alert(result.message);
+		   }
+	   });
+	   }
+
+
+function doGetObjects(){
+	//初始化thead中checkbox的信息 
+		$("#checkAll").prop("checked",false);
+	//1.请求的参数
+	var pageCurrent=$("#pageId").data("pageCurrent");
+	//pageCurrent参数在没有赋值的情况下，默认值应该为1.
+	if(!pageCurrent) pageCurrent=1;
+	var empJobType = 1;
+	var params={"pageCurrent":pageCurrent,
+							"empJobType": empJobType
+						};//"pageCurrent=1"
+	//获取查询参数"用户输入的名字"
+	//var username=$("#searchNameId").val();
+	
+	//if(username) params.username=username;
+	//2.请求的url
+	
+	var url="empSy/doFindEmpSy";
+	
+	$.getJSON(url,params,doHandleResponseResult)	
+}
+
+function doHandleResponseResult(result){
+	console.log("result",result);
+	if(result.state==1){
+		//1.初始化页面上的记录
+		doSetTableBodyRows(result.data.records);
+		//2.初始化分页页面上的分页信息 
+		doSetPagination(result.data);
+	}else{
+			doSetErrorMsg(result.message);
+			//1.获取tbody对象并清空内容	
+	}	
+}
+
+
+
+function doSetErrorMsg(msg){
+	//初始化tbody内容 
+	var tBody=$("#tbodyId");
+	tBody.empty();//清空内容 
+	var tr=$("<tr></tr>");
+	var td=$("<td></td>");
+	td.prop("colspan",7);
+	td.html(msg);
+	tr.append(td);
+	tBody.append(tr);
+	//初始化page位置内容 
+	doInitPagination();
+} 
+function doInitPagination(){
+	$(".rowCount").html("总记录数(0)")
+	$(".pageCount").html("总页数(1)")
+	$(".pageCurrent").html("当前页(1)")
+}
+
+function doSetTableBodyRows(records){
+	//1.获取tbody对象并清空内容
+	var tBody=$("#tbodyId");
+	tBody.empty();//清空内容 
+	//2迭代records记录并将其追加到tbody中 
+	for(var i=0;i<records.length;i++){
+		//2.1创建tr对象
+		var tr=$("<tr></tr>");
+		tr.data("employeeId",records[i].employeeId);
+		//2.2创建多个td对象 
+		var tds=doCreatedTds(records[i]);
+		//2.3将td追加到tr中 
+		tr.append(tds);
+		//2.4将tr追加到tBody中 
+		tBody.append(tr);
+	}
+}
+	
+	function doCreatedTds(row){
+		var tds=
+		"<td>"+row.ename+"</td>"+
+		 "<td>"+row.deptName+"</td>"+
+	     "<td>"+new Date(row.joinTime).toLocaleString()+"</td>"+
+	     "<td>"+row.empCard+"</td>"+
+	     "<td>"+row.empPhone+"</td>"+
+	     "<td><a class='btn-update'>办理转正</a></td>";
+		return tds;
+	}
+		
+
+</script>
+							
+						

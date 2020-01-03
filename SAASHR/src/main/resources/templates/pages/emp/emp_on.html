@@ -1,0 +1,295 @@
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">花名册管理</h3>
+				<h4 id="totalCount" style="color:blue;"> 
+				</h4>
+				<div class="box-tools">
+					<div class="input-group input-group-sm" style="width: 350px;">
+						<input type="text" name="table_search" id="searchNameId"
+							class="form-control pull-right" placeholder="用户名">
+
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default btn-search">
+                                <i class="fa fa-search"></i>
+							</button>
+							<button type="button" class="btn btn-default btn-add">添加</button>
+							<button type="button" class="btn btn-default btn-update">修改</button>
+							<button type="button" class="btn btn-default btn-leave">离职登记</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body table-responsive no-padding">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>姓名</th>
+							<th>性别</th>
+							<th>所属部门</th>
+							<th>身份证号</th>
+							<th>学历</th>
+							<th>入职时间</th>
+							<th>工作性质</th>
+							<th>员工状态</th>
+						</tr>
+					</thead>
+					<tbody id="tbodyId"></tbody>
+				</table>
+			</div>
+			<div id="pageId" class="box-footer clearfix"></div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+</div>
+<script type="text/javascript">
+
+	$(function(){
+		var url = "emp/getTotalCount";
+		$.getJSON(url,callBack)
+	})
+	function callBack(result){
+		if(result.state==1){
+			var totalCount = document.getElementById("totalCount");
+			var shiyong = result.data.shiyong
+			var shixi = result.data.shixi
+			var jianzhi = result.data.jianzhi
+			var male = result.data.male
+			var feMale = result.data.feMale
+			var lctm = result.data.lctm
+			var zaizhi = result.data.zaizhi
+			debugger
+			totalCount.innerHTML='在职员工数: '+zaizhi+'    员工男女比 '+male+':'+feMale+'    试用期员工 '+shiyong+'    实习期员工 '+shixi+'    兼职类员工 '+jianzhi+'    本月离职员工数 '+lctm;
+			
+			
+		}else{
+				doSetErrorMsg("错误");
+				
+		}	
+	}
+	
+	
+	$(function(){
+		const pageUrl="doPageUI";
+		$("#pageId").load(pageUrl,doGetObjects)
+		//$(".input-group-btn").on("click",".btn-search",doQueryObjects)
+		 $(".input-group-btn").on("click",".btn-add,.btn-update,.btn-leave",doLoadEditUI);
+	})
+	
+	
+	function doLoadEditUI(){
+	   //1.判定点击的对象
+	   var title;
+	   if($(this).hasClass("btn-add")){
+		   title="添加员工信息";
+		   doLoadPage(title);
+	   }else if($(this).hasClass("btn-update")){
+		   title="修改员工信息";
+		   var id=doGetCheckedId();
+		   if(!id){
+			  alert("请先选择");
+			  return;
+		   }
+		   doFindObjectById(id,title);
+	   }else if($(this).hasClass("btn-leave")){
+		   title="办理离职";
+		   var id=doGetCheckedId();
+		   if(!id){
+				  alert("请先选择");
+				  return;
+			  }
+		   doleaveEmp(id,title);
+	   }
+	}
+	
+	   
+	function doleaveEmp(id,title){
+		 //1.params
+		   var params={"id":id};
+		   //2.url
+		   var url="/emp/doFindEmpObject";
+		   //3.ajax request
+		   $.getJSON(url,params,function(result){//JsonResult
+			   if(result.state==1){
+				   $("#mainContentId").removeData("rowData");
+				  $("#mainContentId").data("rowData",result.data); 
+				  doLoadEmpLeave(title);
+			   }else{
+				  alert(result.message);
+			   }
+		   });
+	}
+	
+	
+	
+	function doFindObjectById(id,title){
+		   //1.params
+		   var params={"id":id};
+		   //2.url
+		   var url="/emp/doFindEmpObject";
+		   //3.ajax request
+		   $.getJSON(url,params,function(result){//JsonResult
+			   if(result.state==1){
+				   $("#mainContentId").removeData("rowData");
+				  $("#mainContentId").data("rowData",result.data); 
+				  doLoadEmpModify(title);
+			   }else{
+				  alert(result.message);
+			   }
+		   });
+	   }
+	
+	function doGetCheckedId(){
+		 return $("tbody input[name='radioId']:checked").val();
+	   }
+	
+	 function doLoadEmpLeave(title){
+		   var url="emp/emp_doLeave"
+		   $("#mainContentId").load(url,function(){
+			   $(".box-title").html(title);
+		   }) 
+	   }
+	 function doLoadEmpModify(title){
+		   var url="emp/emp_modify"
+		   $("#mainContentId").load(url,function(){
+			   $(".box-title").html(title);
+		   }) 
+	   }
+
+	   function doLoadPage(title){
+		   var url="emp/emp_edit"
+		   $("#mainContentId").load(url,function(){
+			   $(".box-title").html(title);
+		   }) 
+	   }
+
+	
+	function doGetObjects(){
+		//1.请求的参数
+		var pageCurrent=$("#pageId").data("pageCurrent");
+		//pageCurrent参数在没有赋值的情况下，默认值应该为1.
+		if(!pageCurrent) pageCurrent=1;
+		var stats = 0;
+		var params={"pageCurrent":pageCurrent,
+								"stats": stats};//"pageCurrent=1"
+		//获取查询参数"用户输入的名字"
+		//var username=$("#searchNameId").val();
+		
+		//if(username) params.username=username;
+		//2.请求的url
+		
+		var url="emp/doFindEmpList";
+		//3.发送异步请求并处理请求结果 
+		//getJSON为jquery中的一个ajax函数 
+		//getJSON基于ajax的xhr对象向服务端发异步请求
+		//getJSON函数将服务端的响应结果转化为JSON格式
+		//getJSON函数最后会将响应结果传递给callback函数 
+		$.getJSON(url,params,doHandleResponseResult)	
+	}
+	
+	function doHandleResponseResult(result){
+			//debugger
+		if(result.state==1){
+			//1.初始化页面上的日志记录
+			doSetTableBodyRows(result.data.records);
+			//2.初始化分页页面上的分页信息 
+			doSetPagination(result.data);
+		}else{
+				doSetErrorMsg(result.message);
+				//1.获取tbody对象并清空内容	
+		}	
+	}
+	
+	
+	
+	 //设置错误信息 
+	function doSetErrorMsg(msg){
+		//初始化tbody内容 
+		var tBody=$("#tbodyId");
+		tBody.empty();//清空内容 
+		var tr=$("<tr></tr>");
+		var td=$("<td></td>");
+		td.prop("colspan",7);
+		td.html(msg);
+		tr.append(td);
+		tBody.append(tr);
+		//初始化page位置内容 
+		doInitPagination();
+	} 
+	function doInitPagination(){
+		$(".rowCount").html("总记录数(0)")
+		$(".pageCount").html("总页数(1)")
+		$(".pageCurrent").html("当前页(1)")
+	}
+	
+	
+	function doSetTableBodyRows(records){
+		//1.获取tbody对象并清空内容
+		var tBody=$("#tbodyId");
+		tBody.empty();//清空内容 
+		//2迭代records记录并将其追加到tbody中 
+		for(var i=0;i<records.length;i++){
+			//2.1创建tr对象
+			var tr=$("<tr></tr>");
+			//2.2创建多个td对象 
+			var tds=doCreatedTds(records[i]);
+			//2.3将td追加到tr中 
+			tr.append(tds);
+			//2.4将tr追加到tBody中 
+			tBody.append(tr);
+		}
+	}
+		
+		function doCreatedTds(row){
+			var tds="<td><input type='radio' class='cBox' name='radioId' value='"+row.id+"'></td>"+
+			 "<td>"+row.empName+"</td>"+
+			 "<td>"+row.sex+"</td>"+
+		     "<td>"+row.name+"</td>"+
+		     "<td>"+row.empCard+"</td>"+
+		     "<td>"+row.empEducation+"</td>"+
+		     "<td>"+new Date(row.empJoinTime).toLocaleString()+"</td>"+
+		     "<td>"+replaceType(row.empJobType)+"</td>"+replaceStat(row.empStats)
+		    // "<td><button type='button' >"+"</button></td>";
+			return tds;
+		}
+		
+		//替换员工性质
+		function replaceType(jobtype){
+			if(jobtype==0){
+				return "正式员工";
+			}else if(jobtype==1){
+				return "试用期员工";
+			}else if(jobtype==2){
+				return "实习期员工";
+			}else if(jobtype==3){
+				return  "兼职员工";
+			}
+		}
+		
+		//替换员工状态
+		function replaceStat(empStats){
+			if(empStats==0){
+				return "<td style='color:green'>在职员工</td>";
+			}else if(empStats==1){
+				return "<td style='color:red'>待离职</td>";
+			}else if(empStats==2){
+				return "已离职";
+			}
+		}
+		
+		
+		
+	/* 	//处理查询按钮事件
+		function doQueryObjects(){
+			 //为什么要在此位置初始化pageCurrent的值为1?
+			   //数据查询时页码的初始位置也应该是第一页
+			   $("#pageId").data("pageCurrent",1);
+			   //为什么要调用doGetObjects函数？
+			   //重用js代码，简化jS代码编写。
+				doGetObjects();
+		} */
+</script>

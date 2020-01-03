@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.pj.sys.dao.EmployeeLeaveDao">
+	<!-- 查询待离职员工信息 -->
+	<select id="findEmpLeaList" resultType="com.cy.pj.sys.vo.EmpLeaveVo">
+		select
+		a.ename,a.deptName,a.joinTime,a.employeeId,a.empCard,a.empPhone,a.leaveTime,
+		a.leaveStats,a.leaveType,a.leaveReason,a.empCmpId
+		from (select
+		infos.empName as ename,le.employeeId as employeeId,dept.name as
+		deptName,jobs.empJoinTime as
+		joinTime,infos.empCard,
+		infos.empPhone,le.leaveTime,le.leaveType,le.leaveReason,infos.empCmpId,le.leaveStats
+		from employee_leave le
+		left JOIN employee_info infos on le.employeeId
+		=infos.id
+		left JOIN employee_jobinfo jobs on infos.id = jobs.employeeId
+		left join
+		sys_depts dept on dept.id = jobs.empDeptId) a
+		where a.empCmpId=#{userId} and a.leaveStats =#{leaveStats}
+		limit #{startIndex},#{pageSize}
+	</select>
+	<select id="getRowCount" resultType="int">
+	select count(*) from employee_leave a left join 
+	employee_info b on a.employeeId=b.id where leaveStats=#{leaveStats} and empCmpId=#{userId}
+	</select>
+
+	<!-- 更新待离职员工状态 -->
+	<update id="updateEmpLeaStats">
+		update employee_leave
+		set leaveStats='1',
+		leaveTime = now()
+		where employeeId=#{employeeId}
+	</update>
+	
+	<!-- 更新待离职员工状态为离职状态 -->
+	<update id="updateEmpListStats">
+		update employee_jobinfo
+		set empStats='2'
+		where employeeId=#{employeeId}
+	</update>
+	
+	<!-- 为员工办理离职后修改员工状态为离职 -->
+	
+</mapper>
+
+
+
+

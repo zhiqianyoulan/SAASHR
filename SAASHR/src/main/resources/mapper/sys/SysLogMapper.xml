@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 1.在映射文件中添加SysLogMapper.xml映射文件 -->
+<mapper namespace="com.cy.pj.sys.dao.SysLogDao">
+	<!-- 2.在映射文件中添加sql元素实现，SQL中的共性操作 -->
+	<sql id="queryWhereId">
+		<where>
+			<if test="username != null and username !=''">
+				username like concat("%",#{username},"%")
+			</if>
+		</where>
+	</sql>
+
+	<!-- 3.在映射文件中添加id为getRowCount元素，按条件统计记录总数 -->
+	<select id="getRowCount" resultType="int">
+		select count(*) from sys_Logs
+		<include refid="queryWhereId" />
+	</select>
+
+	<!-- 4.在映射文件中添加id为findPageObjects元素，实现分页查询，基于当前页查询当前页记录 -->
+	<select id="findPageObjects"
+		resultType="com.cy.pj.sys.entity.SysLog">
+		select * from sys_Logs
+		<include refid="queryWhereId" />
+		order by createdTime desc
+		limit #{startIndex},#{pageSize}
+	</select>
+
+	<!-- 删除数据 -->
+	<update id="deleteObjects">
+		delete from sys_logs where id in
+		<foreach collection="ids" item="id" open="(" close=")"
+			separator=",">
+			#{id}
+		</foreach>
+	</update>
+
+	<insert id="insertObject">
+		insert into sys_logs
+		(username,operation,method,params,time,ip,createdTime)
+		values
+		(#{username},#{operation},#{method},#{params},#{time},#{ip},#{createdTime})
+	</insert>
+
+</mapper>

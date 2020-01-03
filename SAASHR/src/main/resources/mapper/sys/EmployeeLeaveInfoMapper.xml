@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 1.在映射文件中添加SysMenuMapper.xml映射文件 -->
+
+<mapper namespace="com.cy.pj.sys.dao.EmployeeLeaveInfoDao">
+
+	<select id="getRowCount" resultType="int">
+		select count(*) from employee_leave a left join employee_info b on
+		a.employeeId=b.id where leaveStats=#{leaveStats} and empCmpId=#{userId}
+	</select>
+
+	<select id="findLeaveEmpList" resultType="map"><!-- 存储到Hashmap -->
+		select a.* from (select jobs.empStats,
+		infos.empName,infos.sex,infos.empCard,infos.empPhone,infos.empCmpId,
+		jobs.empJoinTime,
+		leaved.leaveTime,leaved.leaveType,leaved.leaveReason,leaved.leaveStats,dept.name
+		from employee_info infos
+		left join employee_jobinfo jobs on infos.id =jobs.employeeId
+		left join employee_leave leaved on infos.id=leaved.employeeId
+		left join sys_depts dept on jobs.empDeptId = dept.id
+		)
+		a where a.leaveStats
+		= #{leaveStats} and a.empCmpId = #{userId} and a.empStats = 2
+		limit #{startIndex},#{pageSize};
+	</select>
+
+	<!-- 查询本月离职人数 -->
+	<select id="leaveCountThisMonth" resultType="int" >
+		select count(*) from employee_leave le left join employee_info infos on
+		le.employeeId=infos.id where infos.empCmpId=#{userId} and 
+		le.leaveStats=1 and le.leaveTime between 
+		date_add(curdate(),interval -day(curdate())+1 day) and last_day(curdate())
+	</select>
+
+
+
+
+
+
+
+</mapper>

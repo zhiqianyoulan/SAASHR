@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 1.在映射文件中添加SysMenuMapper.xml映射文件 -->
+
+<mapper namespace="com.cy.pj.sys.dao.EmployeeInfoDao">
+	<!-- 查询所有在职员工 -->
+	<select id="findEmpList"  resultType="map"><!-- 存储到Hashmap -->
+		select a.* from (select infos.id,
+		infos.empName,infos.sex,infos.empEducation,infos.empCard,
+		jobs.empJoinTime,jobs.empJobType,jobs.empStats,dept.name,infos.empCmpId
+		from employee_info infos
+		left join employee_jobinfo jobs on infos.id = jobs.employeeId
+		left join sys_depts dept on jobs.empDeptId = dept.id ) a where a.empStats
+		in(0,1) and a.empCmpId = #{userId} 
+		limit #{startIndex},#{pageSize};
+	</select>
+	
+	<!-- 查询在职员工人数 -->
+	<select id="getRowCount" resultType="int">
+		 select count(*) from employee_jobInfo a left join employee_info b on a.employeeId=b.id where empStats in(0,1) and empCmpId=#{userId}
+	</select>	
+	
+	<!-- 查询下员工所有信息 -->
+	<select id="findEmpObject" resultType ="map" >
+		select
+		infos.*,jobs.*,dept.name from employee_info infos left join
+		employee_jobinfo jobs on infos.id = jobs.employeeId
+		left join sys_depts dept on dept.id = jobs.empDeptId
+		where infos.id = #{id}
+
+	</select>
+	
+	<!-- 添加员工基本信息 -->
+	<insert id="insertEmpInfo"  parameterType="com.cy.pj.sys.entity.EmpInfo"  useGeneratedKeys="true" keyProperty="id">
+		insert into employee_info (id,empName,empCmpId,empPhone,empCard,empEducation,empBirthday,empRegistered,empEmail,sex)
+		values
+		(#{id},#{empName},#{empCmpId},#{empPhone},#{empCard},#{empEducation},#{empBirthday},#{empRegistered},#{empEmail},#{sex})
+	</insert>
+	
+	<!-- 添加员工职位信息 -->
+	<insert id="insertEmpJobInfo">
+		insert into employee_jobinfo(id,employeeId,empDeptId,empJoinTime,empJobType,empStats,empBankNO,empBankName,empBankAddr)
+		values
+		(null,#{employeeId},#{empDeptId},NOW(),#{empJobType},0,#{empBankNo},#{empBankName},#{empBankAddr})
+	</insert>
+	
+	<!-- 修改员工基本信息 -->
+	<update id="updataEmpInfo">
+		update employee_info set empName=#{empName},sex=#{sex},empPhone=#{empPhone},
+				empCard=#{empCard},empEducation=#{empEducation},empBirthday=#{empBirthday},
+				empRegistered=#{empRegistered},empEmail=#{empEmail}  where id=#{id}
+	</update>
+	
+	<!-- 修改员工职位信息 -->
+	<update id="updataEmpJobInfo">
+		update employee_jobinfo set empDeptId=#{empDeptId},empJobType=#{empJobType},
+		empBankNo=#{empBankNo},empBankName=#{empBankName},
+		empBankAddr=#{empBankAddr}
+				where employeeId=#{employeeId}
+	</update>
+	
+	
+	<!-- 修改员工状态（办理离职登记） -->
+	<update id="updateStats">
+		update employee_jobinfo set empStats=1 where employeeId=#{id} 
+	</update>
+	<insert id="insertLeaveInfo">
+		insert into employee_leave(id,employeeId,leaveTime,leaveType,leaveReason,leaveStats)
+		values
+		(null,#{employeeId},#{leaveTime},#{leaveType},#{leaveReason},#{leaveStats})
+	</insert>
+	
+	
+	<!-- 查询员工类型人数 1：试用期 2：实习期 3：兼职 -->
+	<select id="getCountEmployeeType" resultType="int" >
+		select count(*) from employee_jobinfo jobs 
+		left join employee_info infos on infos.id=jobs.employeeId 
+		where infos.empCmpId = #{userId} 
+		and jobs.empJobType=1 and jobs.empStats in ('0','1')
+		union all
+		select count(*) from employee_jobinfo jobs 
+		left join employee_info infos on infos.id=jobs.employeeId 
+		where infos.empCmpId = #{userId} 
+		and jobs.empJobType=2 and jobs.empStats in ('0','1')
+		union all
+		select count(*) from employee_jobinfo jobs 
+		left join employee_info infos on infos.id=jobs.employeeId 
+		where infos.empCmpId = #{userId} 
+		and jobs.empJobType=3 and jobs.empStats in ('0','1')
+	</select>
+	
+	<!-- 查询在职员工的性别 -->
+	<select id="getCountSex" resultType="int" >
+		select count(*) from employee_info infos
+		left join employee_jobinfo jobs on infos.id = jobs.employeeId
+		where infos.sex='男' and infos.empCmpId=#{userId} and jobs.empStats in ('0','1')
+		union all
+		select count(*) from employee_info infos
+		left join employee_jobinfo jobs on infos.id = jobs.employeeId
+		where infos.sex='女' and infos.empCmpId=#{userId} and jobs.empStats in ('0','1')
+	</select>
+
+</mapper>

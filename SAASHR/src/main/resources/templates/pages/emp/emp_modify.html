@@ -1,0 +1,290 @@
+<!-- Horizontal Form -->
+<div class="box box-info">
+	<div class="box-header with-border">
+		<h3 class="box-title"></h3>
+	</div>
+	<!-- /.box-header -->
+	<!-- form start -->
+	<form class="form-horizontal">
+		<h4 align="center" >基本信息</h4>
+		<div class="box-body">
+		
+			<div class="form-group">
+				<label for="empName" class="col-sm-2 control-label">员工姓名</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="empName">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="sex" class="col-sm-2 control-label">性别</label>
+				<div class="col-sm-10">
+					<select id="sex" class="form-control">
+						<option value="男">男</option>
+						<option value="女">女</option>
+					</select>
+					
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="empPhone" class="col-sm-2 control-label">联系方式</label>
+				<div class="col-sm-10">
+					<input class="form-control" id="empPhone">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="empCard" class="col-sm-2 control-label">身份证</label>
+				<div class="col-sm-10">
+					<input class="form-control " id="empCard">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="empEducation" class="col-sm-2 control-label">学历</label>
+				<div class="col-sm-10">
+					<input class="form-control " id="empEducation">
+				</div>
+			</div>
+			
+			 <div class="form-group">
+				<label for="empBirthday" class="col-sm-2 control-label">员工生日</label>
+				<div class="col-sm-10">
+					<input class="form-control " id="empBirthday">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="empRegistered" class="col-sm-2 control-label">户口所在地</label>
+				<div class="col-sm-10">
+					<input class="form-control " id="empRegistered">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="empEmail" class="col-sm-2 control-label">电子邮箱</label>
+				<div class="col-sm-10">
+					<input class="form-control " id="empEmail">
+				</div>
+			</div>
+			
+			<h4 align="center" >员工信息</h4>
+			<div class="form-group">
+            	<label for="deptId" class="col-sm-2 control-label">所属部门</label>
+            	<div class="col-sm-10">
+            		<input type="text" class="form-control load-sys-dept" readonly="readonly" id="deptId" placeholder="上级部门">
+            		
+           		</div>
+         	</div>
+			
+			<div class="form-group">
+				<label for="empJobType" class="col-sm-2 control-label">员工类型</label>
+				<div class="col-sm-10">
+					<select id="empJobType" class="form-control">
+						<option value="0">正式员工</option>
+						<option value="1">试用期员工</option>
+						<option value="2">实习生</option>
+						<option value="3">兼职员工</option>
+					</select>
+					
+					<input class="form-control " type="hidden" id="id">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="empBankNo" class="col-sm-2 control-label">银行卡号</label>
+				<div class="col-sm-10">
+					<input class="form-control " id="empBankNo">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="empBankName" class="col-sm-2 control-label">发卡行</label>
+				<div class="col-sm-10">
+					<input class="form-control " id="empBankName">
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<label for="empBankAddr" class="col-sm-2 control-label">银行所在地</label>
+				<div class="col-sm-10">
+					<input class="form-control " id="empBankAddr">
+				</div>
+			</div>
+
+		</div>
+		<!-- /.box-body -->
+		<div class="box-footer">
+			<button type="button" class="btn btn-default btn-cancel">Cancel</button>
+			<button type="button" class="btn btn-info pull-right btn-save">Save</button>
+		</div>
+		<!-- /.box-footer -->
+	</form>
+		     <div class="layui-layer layui-layer-page layui-layer-molv layer-anim" id="treeLayer" type="page" times="2" showtime="0" contype="object"
+		style="z-index:59891016; width: 300px; height: 450px; top: 100px; left: 500px; display:none">
+		<div class="layui-layer-title" style="cursor: move;">选择部门</div>
+		<div class="layui-layer-content" style="height: 358px;">
+			<div style="padding: 10px;" class="layui-layer-wrap">
+				<ul id="zTreeId" class="ztree"></ul>    <!-- 动态加载树 -->
+			</div>
+		</div>
+		<span class="layui-layer-setwin"> <a class="layui-layer-ico layui-layer-close layui-layer-close1 btn-cancel" ></a></span>
+		<div class="layui-layer-btn layui-layer-btn-">
+			<a class="layui-layer-btn0 btn-confirm">确定</a>
+			<a class="layui-layer-btn1 btn-cancel">取消</a>
+	     </div>
+      </div>
+</div>
+<script type="text/javascript"
+	src="bower_components/ztree/jquery.ztree.all.min.js"></script>
+<script type="text/javascript" src="bower_components/layer/layer.js"></script>
+<script type="text/javascript">
+
+var zTree; 
+//初始化zTree时会用到
+var setting = {
+	data : {
+		simpleData : {
+			enable : true,
+			idKey : "id",  //节点数据中保存唯一标识的属性名称
+			pIdKey : "parentId",  //节点数据中保存其父节点唯一标识的属性名称
+			rootPId : null  //根节点id
+		}//json 格式javascript对象
+	}
+}//json 格式的javascript对象
+
+function doHideTree(){
+	  $("#treeLayer").css("display","none");
+}
+//确定按钮
+function doConfirm(){
+	  //1.获取选中的记录(id,name);
+	  var selectedNodes=zTree.getSelectedNodes();
+	  var node=selectedNodes[0];
+	  //2.将id和name填写或绑定在具体对象上
+	  $("#deptId").val(node.name);
+	  console.log("node.id="+node.id)
+	  $("#deptId").data("deptId",node.id)
+	  //3.隐藏zTree对应的Div
+	  doHideTree();
+}
+
+function doLoadZTreeNodes(){
+	  var url="dept/doFindZTreeNodes";
+	  $("#treeLayer").css("display","block");
+	  $.getJSON(url,function(result){
+		  if(result.state==1){
+			  zTree = $.fn.zTree.init($("#zTreeId"),setting,result.data);
+		  }else{
+			  alert(result.message);
+		  }
+	  });
+}
+
+$(function(){
+	init();
+	 $(".box-footer")
+	 .on("click",".btn-cancel",doCancel)
+	 .on("click",".btn-save",doSaveOrUpdate);
+	  $("#treeLayer")
+	  .on("click",".btn-cancel",doHideTree)
+	  .on("click",".btn-confirm",doConfirm);
+	 $(".form-horizontal")
+	 .on("click",".load-sys-dept",doLoadZTreeNodes);
+})
+
+function init(){
+	 var rowData=$("#mainContentId").data("rowData");
+	 var empJobType = rowData.empJobType;
+     $("#empJobType option[value='"+empJobType+"']").attr("selected", true);
+     var sex = rowData.sex;
+     $("#sex option[value='"+sex+"']").attr("selected", true);
+	 
+	 console.log(rowData);
+	 
+	 $("#id").val(rowData.id);
+	 $("#empName").val(rowData.empName);
+	 $("#sex").val(rowData.sex);
+	 $("#empPhone").val(rowData.empPhone);
+	 $("#empCard").val(rowData.empCard);
+	 $("#empEducation").val(rowData.empEducation);
+	 $("#empBirthday").val(rowData.empBirthday);
+	 $("#empRegistered").val(rowData.empRegistered);
+	 $("#empEmail").val(rowData.empEmail);
+	 $("#empJobType").val(rowData.empJobType);
+	 $("#empBankNo").val(rowData.empBankNo);
+	 $("#empBankName").val(rowData.empBankName);
+	 $("#empBankAddr").val(rowData.empBankAddr);
+	 $("#deptId").val(rowData.name);
+	 $("#deptId").data("deptId",rowData.empDeptId);
+}
+ 
+function doGetEditFormData(){
+	 //获取用户输入的数据
+	 // var rowData=$("#mainContentId").data("rowData");
+	// var date =new Date($("#empBirthday").val());
+	 //params.empBirthday=date;
+	 
+	 var deptId =  $("#deptId").data("deptId");
+	 //debugger
+	 var params={
+			 infoId:$("#id").val(),
+ 			 empName:$("#empName").val(),
+ 			 sex:$("#sex").val(),
+ 			empPhone:$("#empPhone").val(),
+ 			empCard:$("#empCard").val(),
+ 			empEducation:$("#empEducation").val(),
+ 			empBirthday:$("#empBirthday").val(),    
+ 			empRegistered:$("#empRegistered").val(),
+ 			empEmail:$("#empEmail").val(),
+ 			empJobType:$("#empJobType").val(),
+ 			empBankNo:$("#empBankNo").val(),
+ 			empDeptId:deptId,
+ 			empBankName:$("#empBankName").val(),
+ 			empBankAddr:$("#empBankAddr").val()
+			 
+ 	/*	     $("#sex").val();
+		 	 $("#empCard").val(rowData.empCard);
+			 $("#empEducation").val(rowData.empEducation);
+			 $("#empBirthday").val(rowData.empBirthday);
+			 $("#empRegistered").val(rowData.empRegistered);
+			 $("#empEmail").val(rowData.empEmail);
+			 $("#empJobType").val(rowData.empJobType);
+			 $("#empBankNo").val(rowData.empBankNo);
+			 $("#empBankName").val(rowData.empBankName);
+			 $("#empBankAddr").val(rowData.empBankAddr);  */
+	 }
+	 return params;
+}
+
+function doSaveOrUpdate(){
+	 //1.获取表单数据
+	 var params=doGetEditFormData();
+	 //2.发起异步请求
+//	 var insertUrl="emp/doUpdateEmpInfo";
+	 var updateUrl="/emp/doUpdateEmpInfo";
+	 
+	 console.log(params);
+	 $.post(updateUrl,params,function(result){
+		 if(result.state==1){
+			 alert(result.message);
+			 doCancel();
+		 }else{
+			alert(result.message);
+		 }
+	 })
+}
+
+function doCancel(){
+	$("#deptId").removeData("deptId");
+	$("#mainContentId").removeData("rowData");
+	$("#mainContentId").load("emp/emp_on");
+ }
+ 
+</script>
+
+
+
+
+

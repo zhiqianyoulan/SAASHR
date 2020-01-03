@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.pj.sys.dao.EmpJzDao">
+	<!-- 查询兼职员工信息 -->
+	<select id="findEmpJzList"
+		resultType="com.cy.pj.sys.vo.EmpJzVo">
+		select infos.empName as ename,jobs.employeeId,
+		dept.name as deptName,jobs.empJoinTime as
+		joinTime,infos.empCard,
+		infos.empPhone from employee_jobinfo as jobs left join
+		employee_info infos on infos.id=jobs.employeeId left join
+		sys_depts dept on dept.id
+		= jobs.empDeptId
+		where jobs.empStats in(0,1) and infos.empCmpId=#{userId} and jobs.empJobType =#{empJobType}
+		limit #{startIndex},#{pageSize}
+	</select>
+	<select id="getRowCountss" resultType="int">
+		select count(*) from employee_jobinfo a left join
+		employee_info b on a.employeeId=b.id where a.empStats in(0,1) and empJobType =#{empJobType}
+		and empCmpId=#{userId} 
+	</select>
+</mapper>
+
+
+
+

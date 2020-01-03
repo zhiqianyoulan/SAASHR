@@ -1,0 +1,42 @@
+#server
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  tomcat:
+    max-threads: 1000
+
+#spring
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql:///jtsys?serverTimezone=GMT%2B8&characterEncoding=utf8
+    username: root
+    password: jackebo5
+  thymeleaf:
+    prefix: classpath:/templates/pages/
+    suffix: .html
+
+#mybatis
+mybatis:
+  configuration:
+    default-statement-timeout: 30
+    map-underscore-to-camel-case: true
+  mapper-locations:
+  - classpath:/mapper/sys/*.xml
+
+#lOG
+logging:
+  level:
+   com.cy: DEBUG
+   
+#page
+db:
+  page:
+      pageSize: 1
+      
+  async-thread-pool:
+          corePoolSize: 20
+          maxPoolSize: 1000
+          keepAliveSeconds: 30
+          queueCapacity: 1000

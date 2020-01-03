@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.pj.sys.dao.SysRoleDao">
+	<sql id="queryWhereId">
+		<where>
+			<if test="name!=null and name!=''">
+				name like concat("%",#{name},"%")
+			</if>
+		</where>
+	</sql>
+
+	<!-- 按条件统计记录条数 -->
+	<select id="getRowCount" resultType="int">
+		select count(*) from sys_roles
+		<include refid="queryWhereId" />
+	</select>
+
+	<select id="findPageObjects" resultType="com.cy.pj.sys.entity.SysRole">
+		select * from sys_roles
+		<include refid="queryWhereId" />
+		order by createdTime desc
+		limit #{startIndex},#{pageSize}
+	</select>
+
+	<!-- 基于角色id删除自身信息 -->
+	<delete id="deleteObject">
+		delete from sys_roles where id =#{id}
+	</delete>
+	
+	<!-- 写入菜单信息 -->
+	<insert id="insertObject"
+		parameterType="com.cy.pj.sys.entity.SysRole" useGeneratedKeys="true" keyProperty="id">
+		insert into sys_roles
+		(id,name,note,createdTime,modifiedTime,
+		createdUser,modifiedUser)
+		values
+		(null,#{name},#{note},now(),now(),
+		#{createdUser},#{modifiedUser})
+	</insert>
+	
+    <!-- 基于角色id查询角色以及角色对应的菜单id数据
+    	1）resultMap表示结果映射，一般用于自定义映射或一些关联查询中
+    	2）collection一般应用于one2many查询，在当前应用中基于角色id查询菜单id并
+    		将查询结果封装到sysRoleMenuVo的menuIds属性上
+     -->
+    <!-- 方案1：数据层嵌套查询 -->
+	<select id="findObjectById" resultMap="sysRoleMenuVo">
+           select id,name,note from sys_roles where id=#{id}        
+    </select>
+   <resultMap type="com.cy.pj.sys.vo.SysRoleMenuVo" id="sysRoleMenuVo">
+        <!-- 假如基于id做关联查询，又希望将id值存储到值对象,可以对id进行专门映射 -->
+        <id property="id" column="id"/>
+        <collection property="menuIds"
+                    select="com.cy.pj.sys.dao.SysRoleMenuDao.findMenuIdsByRoleId"
+                    column="id">
+        </collection>
+   </resultMap>
+    
+     <!-- 方案2：多表查询 -->
+        
+        
+    <update id="updateObject">
+    	update sys_roles set name=#{ name },note=#{ note },
+    			modifiedUser=#{ modifiedUser },modifiedTime=now()
+    	where id=#{ id }
+    </update>
+    
+	<select id="findObjects" resultType="com.cy.pj.common.vo.CheckBox">
+		select id,name from sys_roles
+	</select>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</mapper>
